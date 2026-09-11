@@ -4,7 +4,7 @@ export const createJobSchema = z.object({
   company_name: z.string().min(1, 'Company name is required'),
   position: z.string().min(1, 'Position is required'),
   apply_date: z.string().datetime('Invalid date format'),
-  status: z.enum(['Apply', 'HR_Interview', 'Test', 'User_Interview', 'Offering', 'Gagal']),
+  status: z.enum(['Apply', 'HR_Interview', 'Test', 'User_Interview', 'Offering', 'Reject']),
   description: z.string().min(1, 'Description is required'),
 })
 

@@ -36,7 +36,7 @@ interface StatCards {
   test: number
   user_interview: number
   offering: number
-  gagal: number
+  rejected: number
 }
 
 const CARD_DEFS: { key: keyof StatCards; label: string; icon: any; gradient: string; iconBg: string }[] = [
@@ -46,7 +46,7 @@ const CARD_DEFS: { key: keyof StatCards; label: string; icon: any; gradient: str
   { key: 'test', label: 'Test', icon: FileCheck, gradient: 'from-violet-500 to-purple-600', iconBg: 'bg-white/20' },
   { key: 'user_interview', label: 'User Interview', icon: Mic, gradient: 'from-indigo-500 to-blue-600', iconBg: 'bg-white/20' },
   { key: 'offering', label: 'Offering', icon: Trophy, gradient: 'from-emerald-500 to-teal-600', iconBg: 'bg-white/20' },
-  { key: 'gagal', label: 'Gagal', icon: XCircle, gradient: 'from-rose-500 to-pink-600', iconBg: 'bg-white/20' },
+  { key: 'rejected', label: 'Reject', icon: XCircle, gradient: 'from-rose-500 to-pink-600', iconBg: 'bg-white/20' },
 ]
 
 function DonutChart({ data }: { data: { label: string; value: number; hex: string }[] }) {
@@ -144,7 +144,7 @@ export default function DashboardPage() {
         test: data.filter(j => j.status === 'Test').length,
         user_interview: data.filter(j => j.status === 'User_Interview').length,
         offering: data.filter(j => j.status === 'Offering').length,
-        gagal: data.filter(j => j.status === 'Gagal').length,
+        rejected: data.filter(j => j.status === 'Reject').length,
       })
     } catch (error) {
       const errorMsg = error instanceof Error ? error.message : 'Failed to fetch stats'
@@ -157,7 +157,7 @@ export default function DashboardPage() {
 
   const donutData = useMemo(() => {
     if (!stats) return []
-    return STATUS_ORDER.filter(s => s !== 'Offering' && s !== 'Gagal').map(s => ({
+    return STATUS_ORDER.filter(s => s !== 'Offering' && s !== 'Reject').map(s => ({
       label: STATUS_META[s].label,
       value: stats[s === 'Apply' ? 'apply' : s === 'HR_Interview' ? 'hr_interview' : s === 'Test' ? 'test' : 'user_interview'],
       hex: STATUS_META[s].hex,
@@ -168,7 +168,7 @@ export default function DashboardPage() {
     if (!stats) return []
     return STATUS_ORDER.map(s => ({
       status: s,
-      count: stats[s === 'Apply' ? 'apply' : s === 'HR_Interview' ? 'hr_interview' : s === 'Test' ? 'test' : s === 'User_Interview' ? 'user_interview' : s === 'Offering' ? 'offering' : 'gagal'],
+      count: stats[s === 'Apply' ? 'apply' : s === 'HR_Interview' ? 'hr_interview' : s === 'Test' ? 'test' : s === 'User_Interview' ? 'user_interview' : s === 'Offering' ? 'offering' : 'rejected'],
     }))
   }, [stats])
 
@@ -178,8 +178,8 @@ export default function DashboardPage() {
   }, [distribution])
 
   const successRate = stats && stats.total > 0 ? Math.round((stats.offering / stats.total) * 100) : 0
-  const failureRate = stats && stats.total > 0 ? Math.round((stats.gagal / stats.total) * 100) : 0
-  const activeRate = stats && stats.total > 0 ? Math.round(((stats.total - stats.offering - stats.gagal) / stats.total) * 100) : 0
+  const failureRate = stats && stats.total > 0 ? Math.round((stats.rejected / stats.total) * 100) : 0
+  const activeRate = stats && stats.total > 0 ? Math.round(((stats.total - stats.offering - stats.rejected) / stats.total) * 100) : 0
 
   const recentJobs = [...jobs]
     .sort((a, b) => new Date(b.apply_date).getTime() - new Date(a.apply_date).getTime())
@@ -313,7 +313,7 @@ export default function DashboardPage() {
                       <TrendingDown className="h-4 w-4 text-rose-600" />
                     </span>
                     <span className="mt-2 text-xl font-bold text-rose-700">{failureRate}%</span>
-                    <span className="text-[11px] font-medium text-rose-600">Gagal</span>
+                    <span className="text-[11px] font-medium text-rose-600">Reject</span>
                   </div>
                   <div className="flex flex-col items-center rounded-xl bg-indigo-50 px-2 py-4">
                     <span className="flex h-8 w-8 items-center justify-center rounded-full bg-indigo-100">

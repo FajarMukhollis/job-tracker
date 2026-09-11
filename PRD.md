@@ -11,7 +11,7 @@ pada halaman ini hanya menampilkan list lowongan pekerjaan, serta ada tombol unt
 1. Nama Perusahaan
 2. Posisi
 3. Tanggal Apply (cukup tanggal saja, kalau bisa dibuat menggunakan date picker)
-4. Status (Apply, HR Interview, Test, User Interview, Offering, Gagal)
+4. Status (Apply, HR Interview, Test, User Interview, Offering, Reject)
 5. Deskripksi pekerjaan (kolom input ini harus dibuat lebih panjang, dan lebar. karena kolom ini akan di inputkan text yang cukup panjang dan nantinya akan ada spesial karakter juga)
 
 pada halaman ini juga user dapat mengklik salah satu datanya untuk melihat detail datanya.

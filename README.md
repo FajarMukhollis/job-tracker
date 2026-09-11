@@ -6,7 +6,7 @@ A full-stack web application to track job applications you've applied to. Built 
 
 - **Dashboard** — statistics & progress overview: pipeline donut chart, status distribution bars, success/rejection rate, and recent applications
 - **Work** — manage all job applications with full CRUD (create, view, edit, delete)
-- **Status tracking** — each application goes through stages: `Apply`, `HR Interview`, `Test`, `User Interview`, `Offering`, `Gagal` (rejected)
+- **Status tracking** — each application goes through stages: `Apply`, `HR Interview`, `Test`, `User Interview`, `Offering`, `Reject`
 - **Search & filter** — filter applications by status or search by company/position
 - **Input validation** — Zod validation on the server + HTML validation on the client
 - **Modern UI** — consistent design system (indigo/violet accent), date picker, lots of empty/error states

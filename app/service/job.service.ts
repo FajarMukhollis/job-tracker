@@ -88,7 +88,7 @@ export async function getJobStats() {
       test: jobs.filter((j: any) => j.status === 'Test').length,
       user_interview: jobs.filter((j: any) => j.status === 'User_Interview').length,
       offering: jobs.filter((j: any) => j.status === 'Offering').length,
-      gagal: jobs.filter((j: any) => j.status === 'Gagal').length,
+      rejected: jobs.filter((j: any) => j.status === 'Reject').length,
     }
 
     return stats

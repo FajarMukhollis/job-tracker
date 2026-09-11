@@ -1,4 +1,4 @@
-export type JobStatus = 'Apply' | 'HR_Interview' | 'Test' | 'User_Interview' | 'Offering' | 'Gagal'
+export type JobStatus = 'Apply' | 'HR_Interview' | 'Test' | 'User_Interview' | 'Offering' | 'Reject'
 
 export const STATUS_META: Record<JobStatus, { label: string; badge: string; dot: string; chart: string; hex: string }> = {
   Apply: {
@@ -36,8 +36,8 @@ export const STATUS_META: Record<JobStatus, { label: string; badge: string; dot:
     chart: 'bg-emerald-500',
     hex: '#10b981',
   },
-  Gagal: {
-    label: 'Gagal',
+  Reject: {
+    label: 'Reject',
     badge: 'bg-rose-50 text-rose-700 border-rose-200',
     dot: 'bg-rose-500',
     chart: 'bg-rose-500',
@@ -45,7 +45,7 @@ export const STATUS_META: Record<JobStatus, { label: string; badge: string; dot:
   },
 }
 
-export const STATUS_ORDER: JobStatus[] = ['Apply', 'HR_Interview', 'Test', 'User_Interview', 'Offering', 'Gagal']
+export const STATUS_ORDER: JobStatus[] = ['Apply', 'HR_Interview', 'Test', 'User_Interview', 'Offering', 'Reject']
 
 export function formatStatus(status: JobStatus) {
   return STATUS_META[status].label
