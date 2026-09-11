@@ -57,23 +57,23 @@ function DonutChart({ data }: { data: { label: string; value: number; hex: strin
 
   if (total === 0) {
     return (
-      <svg viewBox="0 0 120 120" className="h-40 w-40 -rotate-90">
-        <circle cx="60" cy="60" r={radius} fill="none" stroke="#e2e8f0" strokeWidth="14" />
+      <svg viewBox="0 0 128 128" className="h-40 w-40 -rotate-90">
+        <circle cx="64" cy="64" r={radius} fill="none" stroke="#e2e8f0" strokeWidth="14" />
       </svg>
     )
   }
 
   return (
-    <svg viewBox="0 0 120 120" className="h-40 w-40 -rotate-90">
-      <circle cx="60" cy="60" r={radius} fill="none" stroke="#e2e8f0" strokeWidth="14" />
+    <svg viewBox="0 0 128 128" className="h-40 w-40 -rotate-90">
+      <circle cx="64" cy="64" r={radius} fill="none" stroke="#e2e8f0" strokeWidth="14" />
       {data.map((d, i) => {
         if (d.value === 0) return null
         const dash = (d.value / total) * circumference
         const seg = (
           <circle
             key={i}
-            cx="60"
-            cy="60"
+            cx="64"
+            cy="64"
             r={radius}
             fill="none"
             stroke={d.hex}
