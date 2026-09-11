@@ -22,12 +22,12 @@ interface Job {
 }
 
 const AVATAR_COLORS = [
-  'from-indigo-500 to-violet-600',
-  'from-sky-500 to-cyan-600',
-  'from-emerald-500 to-teal-600',
-  'from-amber-500 to-orange-600',
-  'from-rose-500 to-pink-600',
-  'from-fuchsia-500 to-purple-600',
+  'bg-indigo-500',
+  'bg-sky-600',
+  'bg-emerald-600',
+  'bg-amber-500',
+  'bg-rose-500',
+  'bg-fuchsia-600',
 ]
 
 function avatarColor(key: string) {
@@ -264,7 +264,7 @@ export default function WorkPage() {
                 key={job.id}
                 className="group flex flex-col gap-4 rounded-2xl border border-slate-200 bg-white p-5 shadow-sm transition-all duration-200 hover:-translate-y-0.5 hover:border-indigo-200 hover:shadow-lg hover:shadow-indigo-100/50 sm:flex-row sm:items-center"
               >
-                <div className={`flex h-12 w-12 shrink-0 items-center justify-center rounded-xl bg-gradient-to-br ${avatarColor(job.company_name)} font-bold text-white`}>
+                <div className={`flex h-12 w-12 shrink-0 items-center justify-center rounded-xl ${avatarColor(job.company_name)} font-bold text-white`}>
                   {job.company_name.charAt(0).toUpperCase()}
                 </div>
 

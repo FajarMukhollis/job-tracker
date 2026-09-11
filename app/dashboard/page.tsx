@@ -39,14 +39,14 @@ interface StatCards {
   rejected: number
 }
 
-const CARD_DEFS: { key: keyof StatCards; label: string; icon: any; gradient: string; iconBg: string }[] = [
-  { key: 'total', label: 'Total Applications', icon: Briefcase, gradient: 'from-slate-900 to-slate-700', iconBg: 'bg-white/20' },
-  { key: 'apply', label: 'Apply', icon: Send, gradient: 'from-blue-500 to-sky-600', iconBg: 'bg-white/20' },
-  { key: 'hr_interview', label: 'HR Interview', icon: Users, gradient: 'from-amber-500 to-orange-600', iconBg: 'bg-white/20' },
-  { key: 'test', label: 'Test', icon: FileCheck, gradient: 'from-violet-500 to-purple-600', iconBg: 'bg-white/20' },
-  { key: 'user_interview', label: 'User Interview', icon: Mic, gradient: 'from-indigo-500 to-blue-600', iconBg: 'bg-white/20' },
-  { key: 'offering', label: 'Offering', icon: Trophy, gradient: 'from-emerald-500 to-teal-600', iconBg: 'bg-white/20' },
-  { key: 'rejected', label: 'Reject', icon: XCircle, gradient: 'from-rose-500 to-pink-600', iconBg: 'bg-white/20' },
+const CARD_DEFS: { key: keyof StatCards; label: string; icon: any; color: string; iconBg: string }[] = [
+  { key: 'total', label: 'Total Applications', icon: Briefcase, color: 'bg-slate-900', iconBg: 'bg-white/20' },
+  { key: 'apply', label: 'Apply', icon: Send, color: 'bg-blue-600', iconBg: 'bg-white/20' },
+  { key: 'hr_interview', label: 'HR Interview', icon: Users, color: 'bg-amber-500', iconBg: 'bg-white/20' },
+  { key: 'test', label: 'Test', icon: FileCheck, color: 'bg-violet-600', iconBg: 'bg-white/20' },
+  { key: 'user_interview', label: 'User Interview', icon: Mic, color: 'bg-indigo-600', iconBg: 'bg-white/20' },
+  { key: 'offering', label: 'Offering', icon: Trophy, color: 'bg-emerald-600', iconBg: 'bg-white/20' },
+  { key: 'rejected', label: 'Reject', icon: XCircle, color: 'bg-rose-500', iconBg: 'bg-white/20' },
 ]
 
 function DonutChart({ data }: { data: { label: string; value: number; hex: string }[] }) {
@@ -228,7 +228,7 @@ export default function DashboardPage() {
                 return (
                   <div
                     key={ctx.key}
-                    className={`relative overflow-hidden rounded-2xl bg-gradient-to-br ${ctx.gradient} p-5 text-white shadow-lg transition-transform duration-200 hover:-translate-y-1`}
+                    className={`relative overflow-hidden rounded-2xl ${ctx.color} p-5 text-white shadow-lg transition-transform duration-200 hover:-translate-y-1`}
                   >
                     <div className="pointer-events-none absolute -right-6 -top-6 h-24 w-24 rounded-full bg-white/10 blur-xl" />
                     <div className="flex items-start justify-between">
@@ -356,7 +356,7 @@ export default function DashboardPage() {
                 return (
                   <div
                     key={ctx.key}
-                    className={`relative flex items-center gap-4 overflow-hidden rounded-2xl bg-gradient-to-br ${ctx.gradient} p-4 text-white shadow-md transition-transform duration-200 hover:-translate-y-0.5`}
+                    className={`relative flex items-center gap-4 overflow-hidden rounded-2xl ${ctx.color} p-4 text-white shadow-md transition-transform duration-200 hover:-translate-y-0.5`}
                   >
                     <div className="pointer-events-none absolute -right-4 -top-4 h-16 w-16 rounded-full bg-white/10 blur-lg" />
                     <div className={`flex h-11 w-11 shrink-0 items-center justify-center rounded-xl ${ctx.iconBg}`}>
