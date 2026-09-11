@@ -1,0 +1,35 @@
+// This is your Prisma schema file,
+// learn more about it in the docs: https://pris.ly/d/prisma-schema
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "mysql"
+  url      = env("DATABASE_URL")
+}
+
+model job {
+  id           String   @id @default(uuid())
+  company_name String
+  position     String
+  apply_date   DateTime
+  status       status
+  description  String   @db.LongText
+  created_at   DateTime @default(now())
+  updated_at   DateTime @updatedAt
+
+  @@map("jobs")
+}
+
+enum status {
+  Apply
+  HR_Interview
+  Test
+  User_Interview
+  Offering
+  Gagal
+
+  @@map("status")
+}
