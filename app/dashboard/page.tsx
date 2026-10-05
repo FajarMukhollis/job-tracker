@@ -198,7 +198,7 @@ export default function DashboardPage() {
   return (
     <div className="min-h-screen">
       <Sidebar />
-      <main className="ml-64 min-h-screen bg-gradient-to-br from-slate-50 via-white to-indigo-50/40 p-6 lg:p-8">
+      <main className="min-h-screen bg-gradient-to-br from-slate-50 via-white to-indigo-50/40 p-4 md:ml-64 md:p-6 lg:p-8">
         <PageHeader
           title="Dashboard"
           subtitle="A summary of your job application progress"
@@ -235,23 +235,23 @@ export default function DashboardPage() {
           </div>
         ) : (
           <>
-            <div className="grid grid-cols-2 gap-4 lg:grid-cols-4">
-              {CARD_DEFS.slice(0, 4).map(ctx => {
+            <div className="grid grid-cols-2 gap-3 sm:grid-cols-3 md:grid-cols-4 lg:gap-4 xl:grid-cols-7">
+              {CARD_DEFS.map(ctx => {
                 const Icon = ctx.icon
                 const value = stats?.[ctx.key] ?? 0
                 return (
                   <div
                     key={ctx.key}
-                    className={`relative overflow-hidden rounded-2xl ${ctx.color} p-5 text-white shadow-lg transition-transform duration-200 hover:-translate-y-1`}
+                    className={`relative overflow-hidden rounded-2xl ${ctx.color} p-4 text-white shadow-md transition-all duration-200 hover:-translate-y-1 hover:shadow-lg`}
                   >
-                    <div className="pointer-events-none absolute -right-6 -top-6 h-24 w-24 rounded-full bg-white/10 blur-xl" />
-                    <div className="flex items-start justify-between">
-                      <div>
-                        <p className="text-xs font-medium text-white/80">{ctx.label}</p>
-                        <p className="mt-2 text-3xl font-bold tracking-tight">{value}</p>
+                    <div className="pointer-events-none absolute -right-4 -top-4 h-16 w-16 rounded-full bg-white/10 blur-lg" />
+                    <div className="flex items-start justify-between gap-2">
+                      <div className="min-w-0 flex-1">
+                        <p className="truncate text-xs font-medium text-white/80">{ctx.label}</p>
+                        <p className="mt-2 text-2xl font-bold tracking-tight">{value}</p>
                       </div>
-                      <div className={`flex h-10 w-10 items-center justify-center rounded-xl ${ctx.iconBg} backdrop-blur-sm`}>
-                        <Icon className="h-5 w-5" />
+                      <div className={`flex h-9 w-9 shrink-0 items-center justify-center rounded-xl ${ctx.iconBg} backdrop-blur-sm`}>
+                        <Icon className="h-4.5 w-4.5" />
                       </div>
                     </div>
                   </div>
@@ -259,16 +259,16 @@ export default function DashboardPage() {
               })}
             </div>
 
-            <div className="mt-6 grid gap-6 lg:grid-cols-3">
+            <div className="mt-6 grid gap-4 sm:gap-6 lg:grid-cols-3">
               {/* Donut chart */}
-              <div className="rounded-2xl border border-slate-200 bg-white p-6 shadow-sm">
-                <h2 className="text-base font-bold text-slate-900">Pipeline Distribution</h2>
+              <div className="rounded-2xl border border-slate-200 bg-white p-4 sm:p-6 shadow-sm">
+                <h2 className="text-sm sm:text-base font-bold text-slate-900">Pipeline Distribution</h2>
                 <p className="text-xs text-slate-400">Distribution of active application statuses</p>
                 <div className="mt-6 flex items-center justify-center">
                   <div className="relative">
                     <DonutChart data={donutData} />
                     <div className="pointer-events-none absolute inset-0 flex flex-col items-center justify-center">
-                      <span className="text-2xl font-bold text-slate-900">{stats?.total ?? 0}</span>
+                      <span className="text-xl sm:text-2xl font-bold text-slate-900">{stats?.total ?? 0}</span>
                       <span className="text-[11px] font-medium text-slate-400">Total</span>
                     </div>
                   </div>
@@ -277,7 +277,7 @@ export default function DashboardPage() {
                   {donutData.map(d => (
                     <div key={d.label} className="flex items-center gap-2 rounded-lg bg-slate-50 px-3 py-2">
                       <span className="h-2.5 w-2.5 rounded-full" style={{ backgroundColor: d.hex }} />
-                      <span className="text-xs font-medium text-slate-600">{d.label}</span>
+                      <span className="text-xs font-medium text-slate-600 truncate">{d.label}</span>
                       <span className="ml-auto text-xs font-bold text-slate-900">{d.value}</span>
                     </div>
                   ))}
@@ -285,8 +285,8 @@ export default function DashboardPage() {
               </div>
 
               {/* Distribution bars */}
-              <div className="rounded-2xl border border-slate-200 bg-white p-6 shadow-sm">
-                <h2 className="text-base font-bold text-slate-900">Status Distribution</h2>
+              <div className="rounded-2xl border border-slate-200 bg-white p-4 sm:p-6 shadow-sm">
+                <h2 className="text-sm sm:text-base font-bold text-slate-900">Status Distribution</h2>
                 <p className="text-xs text-slate-400">Number of applications per status</p>
                 <div className="mt-6 space-y-4">
                   {distribution.map(({ status, count }) => {
@@ -295,8 +295,8 @@ export default function DashboardPage() {
                     return (
                       <div key={status}>
                         <div className="mb-1.5 flex items-center justify-between">
-                          <span className="text-sm font-medium text-slate-600">{meta.label}</span>
-                          <span className="text-sm font-bold text-slate-900">{count}</span>
+                          <span className="text-xs sm:text-sm font-medium text-slate-600">{meta.label}</span>
+                          <span className="text-xs sm:text-sm font-bold text-slate-900">{count}</span>
                         </div>
                         <div className="h-2.5 w-full overflow-hidden rounded-full bg-slate-100">
                           <div
@@ -311,38 +311,38 @@ export default function DashboardPage() {
               </div>
 
               {/* Success metrics */}
-              <div className="rounded-2xl border border-slate-200 bg-white p-6 shadow-sm">
-                <h2 className="text-base font-bold text-slate-900">Success Rate</h2>
+              <div className="rounded-2xl border border-slate-200 bg-white p-4 sm:p-6 shadow-sm">
+                <h2 className="text-sm sm:text-base font-bold text-slate-900">Success Rate</h2>
                 <p className="text-xs text-slate-400">Comparison of application outcomes</p>
-                <div className="mt-6 grid grid-cols-3 gap-4">
-                  <div className="flex flex-col items-center rounded-xl bg-emerald-50 px-2 py-4">
-                    <span className="flex h-8 w-8 items-center justify-center rounded-full bg-emerald-100">
-                      <TrendingUp className="h-4 w-4 text-emerald-600" />
+                <div className="mt-6 grid grid-cols-3 gap-2 sm:gap-4">
+                  <div className="flex flex-col items-center rounded-xl bg-emerald-50 px-2 py-3 sm:py-4">
+                    <span className="flex h-7 w-7 sm:h-8 sm:w-8 items-center justify-center rounded-full bg-emerald-100">
+                      <TrendingUp className="h-3.5 w-3.5 sm:h-4 sm:w-4 text-emerald-600" />
                     </span>
-                    <span className="mt-2 text-xl font-bold text-emerald-700">{successRate}%</span>
-                    <span className="text-[11px] font-medium text-emerald-600">Offering</span>
+                    <span className="mt-2 text-lg sm:text-xl font-bold text-emerald-700">{successRate}%</span>
+                    <span className="text-[10px] sm:text-[11px] font-medium text-emerald-600">Offering</span>
                   </div>
-                  <div className="flex flex-col items-center rounded-xl bg-rose-50 px-2 py-4">
-                    <span className="flex h-8 w-8 items-center justify-center rounded-full bg-rose-100">
-                      <TrendingDown className="h-4 w-4 text-rose-600" />
+                  <div className="flex flex-col items-center rounded-xl bg-rose-50 px-2 py-3 sm:py-4">
+                    <span className="flex h-7 w-7 sm:h-8 sm:w-8 items-center justify-center rounded-full bg-rose-100">
+                      <TrendingDown className="h-3.5 w-3.5 sm:h-4 sm:w-4 text-rose-600" />
                     </span>
-                    <span className="mt-2 text-xl font-bold text-rose-700">{failureRate}%</span>
-                    <span className="text-[11px] font-medium text-rose-600">Reject</span>
+                    <span className="mt-2 text-lg sm:text-xl font-bold text-rose-700">{failureRate}%</span>
+                    <span className="text-[10px] sm:text-[11px] font-medium text-rose-600">Reject</span>
                   </div>
-                  <div className="flex flex-col items-center rounded-xl bg-indigo-50 px-2 py-4">
-                    <span className="flex h-8 w-8 items-center justify-center rounded-full bg-indigo-100">
-                      <Briefcase className="h-4 w-4 text-indigo-600" />
+                  <div className="flex flex-col items-center rounded-xl bg-indigo-50 px-2 py-3 sm:py-4">
+                    <span className="flex h-7 w-7 sm:h-8 sm:w-8 items-center justify-center rounded-full bg-indigo-100">
+                      <Briefcase className="h-3.5 w-3.5 sm:h-4 sm:w-4 text-indigo-600" />
                     </span>
-                    <span className="mt-2 text-xl font-bold text-indigo-700">{activeRate}%</span>
-                    <span className="text-[11px] font-medium text-indigo-600">Active</span>
+                    <span className="mt-2 text-lg sm:text-xl font-bold text-indigo-700">{activeRate}%</span>
+                    <span className="text-[10px] sm:text-[11px] font-medium text-indigo-600">Active</span>
                   </div>
                 </div>
 
                 <div className="mt-6">
-                  <h3 className="text-sm font-semibold text-slate-700">Recent Applications</h3>
+                  <h3 className="text-xs sm:text-sm font-semibold text-slate-700">Recent Applications</h3>
                   <div className="mt-3 space-y-2">
                     {recentJobs.length === 0 ? (
-                      <p className="text-sm text-slate-400">No applications yet.</p>
+                      <p className="text-xs sm:text-sm text-slate-400">No applications yet.</p>
                     ) : (
                       recentJobs.map(job => (
                         <a
@@ -351,7 +351,7 @@ export default function DashboardPage() {
                           className="flex items-center gap-3 rounded-xl border border-slate-100 bg-slate-50/50 px-3 py-2.5 transition hover:border-indigo-200 hover:bg-indigo-50/40"
                         >
                           <div className="min-w-0 flex-1">
-                            <p className="truncate text-sm font-semibold text-slate-800">{job.position}</p>
+                            <p className="truncate text-xs sm:text-sm font-semibold text-slate-800">{job.position}</p>
                             <p className="truncate text-xs text-slate-400">{job.company_name}</p>
                           </div>
                           <span className={`h-2 w-2 shrink-0 rounded-full ${STATUS_META[job.status].dot}`} />
@@ -363,27 +363,6 @@ export default function DashboardPage() {
               </div>
             </div>
 
-            <div className="mt-6 grid grid-cols-2 gap-4 lg:grid-cols-4">
-              {CARD_DEFS.slice(4).map(ctx => {
-                const Icon = ctx.icon
-                const value = stats?.[ctx.key] ?? 0
-                return (
-                  <div
-                    key={ctx.key}
-                    className={`relative flex items-center gap-4 overflow-hidden rounded-2xl ${ctx.color} p-4 text-white shadow-md transition-transform duration-200 hover:-translate-y-0.5`}
-                  >
-                    <div className="pointer-events-none absolute -right-4 -top-4 h-16 w-16 rounded-full bg-white/10 blur-lg" />
-                    <div className={`flex h-11 w-11 shrink-0 items-center justify-center rounded-xl ${ctx.iconBg}`}>
-                      <Icon className="h-5 w-5" />
-                    </div>
-                    <div>
-                      <p className="text-2xl font-bold leading-none tracking-tight">{value}</p>
-                      <p className="mt-1 text-xs font-medium text-white/80">{ctx.label}</p>
-                    </div>
-                  </div>
-                )
-              })}
-            </div>
           </>
         )}
       </main>

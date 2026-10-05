@@ -66,10 +66,10 @@ export default function JobForm({ initialData, onSubmit, onCancel, isDisabled = 
   }
 
   return (
-    <form onSubmit={handleSubmit} className="space-y-5">
-      <div className="grid gap-5 sm:grid-cols-2">
+    <form onSubmit={handleSubmit} className="space-y-4 sm:space-y-5">
+      <div className="grid gap-4 sm:gap-5 sm:grid-cols-2">
         <div className="sm:col-span-2">
-          <label className="flex items-center gap-1.5 text-sm font-semibold text-slate-700">
+          <label className="flex items-center gap-1.5 text-xs sm:text-sm font-semibold text-slate-700">
             <Building2 className="h-4 w-4 text-indigo-500" /> Company Name
           </label>
           <input
@@ -85,7 +85,7 @@ export default function JobForm({ initialData, onSubmit, onCancel, isDisabled = 
         </div>
 
         <div className="sm:col-span-2">
-          <label className="flex items-center gap-1.5 text-sm font-semibold text-slate-700">
+          <label className="flex items-center gap-1.5 text-xs sm:text-sm font-semibold text-slate-700">
             <Briefcase className="h-4 w-4 text-indigo-500" /> Position
           </label>
           <input
@@ -101,7 +101,7 @@ export default function JobForm({ initialData, onSubmit, onCancel, isDisabled = 
         </div>
 
         <div>
-          <label className="flex items-center gap-1.5 text-sm font-semibold text-slate-700">
+          <label className="flex items-center gap-1.5 text-xs sm:text-sm font-semibold text-slate-700">
             <CalendarDays className="h-4 w-4 text-indigo-500" /> Apply Date
           </label>
           <input
@@ -116,7 +116,7 @@ export default function JobForm({ initialData, onSubmit, onCancel, isDisabled = 
         </div>
 
         <div>
-          <label className="flex items-center gap-1.5 text-sm font-semibold text-slate-700">
+          <label className="flex items-center gap-1.5 text-xs sm:text-sm font-semibold text-slate-700">
             <Briefcase className="h-4 w-4 text-indigo-500" /> Status
           </label>
           <select
@@ -136,7 +136,7 @@ export default function JobForm({ initialData, onSubmit, onCancel, isDisabled = 
         </div>
 
         <div className="sm:col-span-2">
-          <label className="flex items-center gap-1.5 text-sm font-semibold text-slate-700">
+          <label className="flex items-center gap-1.5 text-xs sm:text-sm font-semibold text-slate-700">
             <AlignLeft className="h-4 w-4 text-indigo-500" /> Job Description
           </label>
           <textarea
@@ -145,16 +145,15 @@ export default function JobForm({ initialData, onSubmit, onCancel, isDisabled = 
             onChange={handleChange}
             disabled={isDisabled}
             required
-            rows={7}
+            rows={5}
             placeholder="Job description, requirements, notes, etc..."
             className={`${inputClass(isDisabled)} resize-y`}
           />
         </div>
 
-        {/* Field reject_note — only visible when status is Reject */}
         {formData.status === 'Reject' && (
           <div className="sm:col-span-2">
-            <label className="flex items-center gap-1.5 text-sm font-semibold text-slate-700">
+            <label className="flex items-center gap-1.5 text-xs sm:text-sm font-semibold text-slate-700">
               <AlignLeft className="h-4 w-4 text-rose-500" />
               <span className="text-rose-600">Reject Note</span>
               <span className="ml-1 rounded-full bg-rose-100 px-1.5 py-0.5 text-[10px] font-semibold text-rose-500">Optional</span>
@@ -174,16 +173,16 @@ export default function JobForm({ initialData, onSubmit, onCancel, isDisabled = 
       </div>
 
       {error && (
-        <div className="rounded-xl border border-rose-200 bg-rose-50 px-4 py-3 text-sm font-medium text-rose-600">
+        <div className="rounded-xl border border-rose-200 bg-rose-50 px-4 py-3 text-xs sm:text-sm font-medium text-rose-600">
           {error}
         </div>
       )}
 
-      <div className="flex justify-end gap-3 border-t border-slate-100 pt-5">
+      <div className="flex flex-col gap-3 border-t border-slate-100 pt-4 sm:flex-row sm:justify-end sm:gap-3 sm:pt-5">
         <button
           type="button"
           onClick={onCancel}
-          className="rounded-xl px-5 py-2.5 text-sm font-semibold text-slate-600 transition hover:bg-slate-100"
+          className="rounded-xl px-4 py-2 sm:px-5 sm:py-2.5 text-xs sm:text-sm font-semibold text-slate-600 transition hover:bg-slate-100 order-2 sm:order-1"
         >
           {isDisabled ? 'Close' : 'Cancel'}
         </button>
@@ -191,7 +190,7 @@ export default function JobForm({ initialData, onSubmit, onCancel, isDisabled = 
           <button
             type="submit"
             disabled={loading}
-            className="inline-flex items-center gap-2 rounded-xl bg-emerald-600 px-6 py-2.5 text-sm font-semibold text-white shadow-lg shadow-emerald-500/25 transition hover:bg-emerald-700 disabled:opacity-60"
+            className="order-1 sm:order-2 inline-flex items-center justify-center gap-2 rounded-xl bg-emerald-600 px-4 py-2 sm:px-6 sm:py-2.5 text-xs sm:text-sm font-semibold text-white shadow-lg shadow-emerald-500/25 transition hover:bg-emerald-700 disabled:opacity-60"
           >
             {loading ? <Loader2 className="h-4 w-4 animate-spin" /> : <Check className="h-4 w-4" />}
             {loading ? 'Saving...' : 'Save Changes'}

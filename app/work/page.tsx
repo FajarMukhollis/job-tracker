@@ -63,6 +63,7 @@ export default function WorkPage() {
   const removeToast = useCallback((id: string) => {
     setToasts(prev => prev.filter(t => t.id !== id))
   }, [])
+
   useEffect(() => {
     let cancelled = false
 
@@ -227,17 +228,17 @@ export default function WorkPage() {
         onCancel={() => setConfirmId(null)}
       />
       <Sidebar />
-      <main className="ml-64 min-h-screen p-6 lg:p-8">
+      <main className="min-h-screen p-4 md:ml-64 md:p-6 lg:p-8">
         <PageHeader
           title="Work"
           subtitle="Manage all your job applications in one place"
           action={
             <button
               onClick={handleAddJob}
-              className="inline-flex items-center gap-2 rounded-xl bg-emerald-600 px-5 py-2.5 text-sm font-semibold text-white shadow-lg shadow-emerald-500/25 transition hover:bg-emerald-700 hover:shadow-xl hover:shadow-emerald-500/30"
+              className="inline-flex w-full items-center justify-center gap-2 rounded-xl bg-emerald-600 px-4 py-2 text-sm font-semibold text-white shadow-lg shadow-emerald-500/25 transition hover:bg-emerald-700 hover:shadow-xl hover:shadow-emerald-500/30 sm:w-auto sm:px-5 sm:py-2.5"
             >
               <Plus className="h-4 w-4" />
-              Add Application
+              <span className="sm:inline">Add Application</span>
             </button>
           }
         />
@@ -250,7 +251,7 @@ export default function WorkPage() {
               value={search}
               onChange={e => setSearch(e.target.value)}
               placeholder="Search company or position..."
-              className="w-full rounded-xl border border-slate-200 bg-white py-2.5 pl-10 pr-4 text-sm text-slate-900 shadow-sm outline-none transition focus:border-indigo-500 focus:ring-2 focus:ring-indigo-100"
+              className="w-full rounded-xl border border-slate-200 bg-white py-2 pl-10 pr-3 text-xs sm:py-2.5 sm:text-sm text-slate-900 shadow-sm outline-none transition focus:border-indigo-500 focus:ring-2 focus:ring-indigo-100"
             />
           </div>
           <div className="flex items-center gap-2">
@@ -258,7 +259,7 @@ export default function WorkPage() {
             <select
               value={filterStatus}
               onChange={e => setFilterStatus(e.target.value as 'all' | JobStatus)}
-              className="rounded-xl border border-slate-200 bg-white px-3 py-2.5 text-sm font-medium text-slate-700 shadow-sm outline-none transition focus:border-indigo-500 focus:ring-2 focus:ring-indigo-100"
+              className="rounded-xl border border-slate-200 bg-white px-3 py-2 text-xs sm:py-2.5 sm:text-sm font-medium text-slate-700 shadow-sm outline-none transition focus:border-indigo-500 focus:ring-2 focus:ring-indigo-100"
             >
               <option value="all">All Status</option>
               {STATUS_ORDER.map(s => (
@@ -305,38 +306,39 @@ export default function WorkPage() {
             </button>
           </div>
         ) : (
-          <div className="grid gap-4">
+          <div className="grid gap-3 sm:gap-4">
             {filteredJobs.map(job => (
               <div
                 key={job.id}
-                className="group flex flex-col gap-4 rounded-2xl border border-slate-200 bg-white p-5 shadow-sm transition-all duration-200 hover:-translate-y-0.5 hover:border-indigo-200 hover:shadow-lg hover:shadow-indigo-100/50 sm:flex-row sm:items-center"
+                className="group flex flex-col gap-3 rounded-2xl border border-slate-200 bg-white p-4 shadow-sm transition-all duration-200 hover:-translate-y-0.5 hover:border-indigo-200 hover:shadow-lg hover:shadow-indigo-100/50 sm:flex-row sm:items-center sm:gap-4 sm:p-5"
               >
-                <div className={`flex h-12 w-12 shrink-0 items-center justify-center rounded-xl ${avatarColor(job.company_name)} font-bold text-white`}>
+                <div className={`flex h-10 w-10 shrink-0 items-center justify-center rounded-xl ${avatarColor(job.company_name)} font-bold text-white text-xs sm:h-12 sm:w-12`}>
                   {job.company_name.charAt(0).toUpperCase()}
                 </div>
 
                 <div className="min-w-0 flex-1">
                   <div className="flex flex-wrap items-center gap-2">
-                    <h3 className="text-base font-semibold text-slate-900">{job.position}</h3>
+                    <h3 className="text-sm font-semibold text-slate-900 sm:text-base">{job.position}</h3>
                     {job.status === 'Offering' && (
                       <span className="rounded-full bg-emerald-100 px-2 py-0.5 text-[10px] font-bold uppercase tracking-wide text-emerald-700">
                         Success
                       </span>
                     )}
                   </div>
-                  <p className="mt-0.5 flex items-center gap-1.5 text-sm text-slate-500">
-                    <Building2 className="h-3.5 w-3.5" />
+                  <p className="mt-0.5 flex items-center gap-1.5 text-xs sm:text-sm text-slate-500">
+                    <Building2 className="h-3 w-3 sm:h-3.5 sm:w-3.5" />
                     {job.company_name}
                   </p>
-                  <p className="mt-1 line-clamp-1 text-sm text-slate-400">{job.description}</p>
+                  <p className="mt-1 line-clamp-1 text-xs sm:text-sm text-slate-400">{job.description}</p>
                 </div>
 
-                <div className="flex flex-wrap items-center gap-3 sm:flex-col sm:items-end sm:gap-2">
-                  <div className="flex items-center gap-3">
+                <div className="flex flex-wrap items-center gap-2 sm:flex-col sm:items-end sm:gap-2">
+                  <div className="flex items-center gap-2 sm:gap-3">
                     <StatusBadge status={job.status} size="sm" />
                     <span className="flex items-center gap-1 text-xs text-slate-400">
-                      <CalendarDays className="h-3.5 w-3.5" />
-                      {formatDate(job.apply_date)}
+                      <CalendarDays className="h-3 w-3" />
+                      <span className="hidden sm:inline">{formatDate(job.apply_date)}</span>
+                      <span className="sm:hidden">{new Date(job.apply_date).toLocaleDateString('en-US', { month: 'short', day: 'numeric' })}</span>
                     </span>
                   </div>
                   <div className="flex items-center gap-1">
