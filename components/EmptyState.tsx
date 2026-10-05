@@ -14,7 +14,7 @@ export default function EmptyState({ message, actionLabel, onAction }: EmptyStat
       <div className="flex h-16 w-16 items-center justify-center rounded-2xl bg-gradient-to-br from-indigo-100 to-violet-100">
         <Briefcase className="h-8 w-8 text-indigo-500" />
       </div>
-      <h3 className="mt-5 text-lg font-semibold text-slate-800">Belum ada data</h3>
+      <h3 className="mt-5 text-lg font-semibold text-slate-800">No data yet</h3>
       <p className="mt-1 max-w-sm text-sm text-slate-500">{message}</p>
       {actionLabel && onAction && (
         <button

@@ -13,6 +13,7 @@ import {
   TrendingDown,
   ArrowRight,
   Loader2,
+  type LucideIcon,
 } from 'lucide-react'
 import Sidebar from '@/components/Sidebar'
 import PageHeader from '@/components/PageHeader'
@@ -39,7 +40,7 @@ interface StatCards {
   rejected: number
 }
 
-const CARD_DEFS: { key: keyof StatCards; label: string; icon: any; color: string; iconBg: string }[] = [
+const CARD_DEFS: { key: keyof StatCards; label: string; icon: LucideIcon; color: string; iconBg: string }[] = [
   { key: 'total', label: 'Total Applications', icon: Briefcase, color: 'bg-slate-900', iconBg: 'bg-white/20' },
   { key: 'apply', label: 'Apply', icon: Send, color: 'bg-blue-600', iconBg: 'bg-white/20' },
   { key: 'hr_interview', label: 'HR Interview', icon: Users, color: 'bg-amber-500', iconBg: 'bg-white/20' },
@@ -53,7 +54,6 @@ function DonutChart({ data }: { data: { label: string; value: number; hex: strin
   const total = data.reduce((s, d) => s + d.value, 0)
   const radius = 54
   const circumference = 2 * Math.PI * radius
-  let offset = 0
 
   if (total === 0) {
     return (
@@ -69,7 +69,9 @@ function DonutChart({ data }: { data: { label: string; value: number; hex: strin
       {data.map((d, i) => {
         if (d.value === 0) return null
         const dash = (d.value / total) * circumference
-        const seg = (
+        const offset =
+          (data.slice(0, i).reduce((s, x) => s + x.value, 0) / total) * circumference
+        return (
           <circle
             key={i}
             cx="64"
@@ -83,42 +85,40 @@ function DonutChart({ data }: { data: { label: string; value: number; hex: strin
             strokeLinecap="butt"
           />
         )
-        offset += dash
-        return seg
       })}
     </svg>
   )
 }
 
-function ProgressRing({ value, color, label }: { value: number; color: string; label: string }) {
-  const radius = 50
-  const circumference = 2 * Math.PI * radius
-  const dash = (value / 100) * circumference
+// function ProgressRing({ value, color, label }: { value: number; color: string; label: string }) {
+//   const radius = 50
+//   const circumference = 2 * Math.PI * radius
+//   const dash = (value / 100) * circumference
 
-  return (
-    <div className="flex flex-col items-center">
-      <div className="relative h-32 w-32">
-        <svg viewBox="0 0 120 120" className="h-full w-full -rotate-90">
-          <circle cx="60" cy="60" r={radius} fill="none" stroke="#e2e8f0" strokeWidth="12" />
-          <circle
-            cx="60"
-            cy="60"
-            r={radius}
-            fill="none"
-            stroke={color}
-            strokeWidth="12"
-            strokeDasharray={`${dash} ${circumference - dash}`}
-            strokeLinecap="round"
-          />
-        </svg>
-        <div className="absolute inset-0 flex flex-col items-center justify-center">
-          <span className="text-2xl font-bold text-slate-900">{value}%</span>
-        </div>
-      </div>
-      <span className="mt-2 text-sm font-medium text-slate-500">{label}</span>
-    </div>
-  )
-}
+//   return (
+//     <div className="flex flex-col items-center">
+//       <div className="relative h-32 w-32">
+//         <svg viewBox="0 0 120 120" className="h-full w-full -rotate-90">
+//           <circle cx="60" cy="60" r={radius} fill="none" stroke="#e2e8f0" strokeWidth="12" />
+//           <circle
+//             cx="60"
+//             cy="60"
+//             r={radius}
+//             fill="none"
+//             stroke={color}
+//             strokeWidth="12"
+//             strokeDasharray={`${dash} ${circumference - dash}`}
+//             strokeLinecap="round"
+//           />
+//         </svg>
+//         <div className="absolute inset-0 flex flex-col items-center justify-center">
+//           <span className="text-2xl font-bold text-slate-900">{value}%</span>
+//         </div>
+//       </div>
+//       <span className="mt-2 text-sm font-medium text-slate-500">{label}</span>
+//     </div>
+//   )
+// }
 
 export default function DashboardPage() {
   const [stats, setStats] = useState<StatCards | null>(null)
@@ -126,34 +126,44 @@ export default function DashboardPage() {
   const [loading, setLoading] = useState(true)
   const [error, setError] = useState<string | null>(null)
 
-  useEffect(() => {
-    fetchStats()
-  }, [])
+  const [reloadKey, setReloadKey] = useState(0)
 
-  const fetchStats = async () => {
-    try {
-      setError(null)
-      const res = await fetch('/api/jobs')
-      if (!res.ok) throw new Error(`Failed to fetch stats: ${res.status}`)
-      const data: Job[] = await res.json()
-      setJobs(data)
-      setStats({
-        total: data.length,
-        apply: data.filter(j => j.status === 'Apply').length,
-        hr_interview: data.filter(j => j.status === 'HR_Interview').length,
-        test: data.filter(j => j.status === 'Test').length,
-        user_interview: data.filter(j => j.status === 'User_Interview').length,
-        offering: data.filter(j => j.status === 'Offering').length,
-        rejected: data.filter(j => j.status === 'Reject').length,
-      })
-    } catch (error) {
-      const errorMsg = error instanceof Error ? error.message : 'Failed to fetch stats'
-      console.error('Failed to fetch stats:', error)
-      setError(errorMsg)
-    } finally {
-      setLoading(false)
+  useEffect(() => {
+    let cancelled = false
+
+    async function load() {
+      try {
+        const res = await fetch('/api/jobs')
+        if (!res.ok) throw new Error(`Failed to fetch stats: ${res.status}`)
+        const data: Job[] = await res.json()
+        if (cancelled) return
+
+        setJobs(data)
+        setStats({
+          total: data.length,
+          apply: data.filter(j => j.status === 'Apply').length,
+          hr_interview: data.filter(j => j.status === 'HR_Interview').length,
+          test: data.filter(j => j.status === 'Test').length,
+          user_interview: data.filter(j => j.status === 'User_Interview').length,
+          offering: data.filter(j => j.status === 'Offering').length,
+          rejected: data.filter(j => j.status === 'Reject').length,
+        })
+      } catch (error) {
+        if (cancelled) return
+        const errorMsg = error instanceof Error ? error.message : 'Failed to fetch stats'
+        console.error('Failed to fetch stats:', error)
+        setError(errorMsg)
+      } finally {
+        if (!cancelled) setLoading(false)
+      }
     }
-  }
+
+    load()
+
+    return () => {
+      cancelled = true
+    }
+  }, [reloadKey])
 
   const donutData = useMemo(() => {
     if (!stats) return []
@@ -191,13 +201,13 @@ export default function DashboardPage() {
       <main className="ml-64 min-h-screen bg-gradient-to-br from-slate-50 via-white to-indigo-50/40 p-6 lg:p-8">
         <PageHeader
           title="Dashboard"
-          subtitle="Ringkasan progres lamaran kerjamu"
+          subtitle="A summary of your job application progress"
           action={
             <a
               href="/work"
               className="inline-flex items-center gap-2 rounded-xl border border-slate-200 bg-white px-4 py-2.5 text-sm font-semibold text-slate-700 shadow-sm transition hover:border-indigo-300 hover:text-indigo-600"
             >
-              Lihat Work
+              View Work
               <ArrowRight className="h-4 w-4" />
             </a>
           }
@@ -206,14 +216,18 @@ export default function DashboardPage() {
         {loading ? (
           <div className="flex items-center justify-center py-24 text-slate-400">
             <Loader2 className="h-6 w-6 animate-spin" />
-            <span className="ml-2 text-sm font-medium">Memuat data...</span>
+            <span className="ml-2 text-sm font-medium">Loading data...</span>
           </div>
         ) : error ? (
           <div className="rounded-2xl border border-rose-200 bg-rose-50 p-6 text-rose-700">
             <p className="font-semibold">Error loading dashboard</p>
             <p className="mt-1 text-sm">{error}</p>
             <button
-              onClick={() => fetchStats()}
+              onClick={() => {
+                setError(null)
+                setLoading(true)
+                setReloadKey(k => k + 1)
+              }}
               className="mt-3 rounded-xl bg-rose-600 px-4 py-2 text-sm font-semibold text-white transition hover:bg-rose-700"
             >
               Try again
@@ -249,7 +263,7 @@ export default function DashboardPage() {
               {/* Donut chart */}
               <div className="rounded-2xl border border-slate-200 bg-white p-6 shadow-sm">
                 <h2 className="text-base font-bold text-slate-900">Pipeline Distribution</h2>
-                <p className="text-xs text-slate-400">Penyebaran status lamaran aktif</p>
+                <p className="text-xs text-slate-400">Distribution of active application statuses</p>
                 <div className="mt-6 flex items-center justify-center">
                   <div className="relative">
                     <DonutChart data={donutData} />
@@ -273,7 +287,7 @@ export default function DashboardPage() {
               {/* Distribution bars */}
               <div className="rounded-2xl border border-slate-200 bg-white p-6 shadow-sm">
                 <h2 className="text-base font-bold text-slate-900">Status Distribution</h2>
-                <p className="text-xs text-slate-400">Jumlah lamaran per status</p>
+                <p className="text-xs text-slate-400">Number of applications per status</p>
                 <div className="mt-6 space-y-4">
                   {distribution.map(({ status, count }) => {
                     const meta = STATUS_META[status]
@@ -299,7 +313,7 @@ export default function DashboardPage() {
               {/* Success metrics */}
               <div className="rounded-2xl border border-slate-200 bg-white p-6 shadow-sm">
                 <h2 className="text-base font-bold text-slate-900">Success Rate</h2>
-                <p className="text-xs text-slate-400">Perbandingan hasil lamaran</p>
+                <p className="text-xs text-slate-400">Comparison of application outcomes</p>
                 <div className="mt-6 grid grid-cols-3 gap-4">
                   <div className="flex flex-col items-center rounded-xl bg-emerald-50 px-2 py-4">
                     <span className="flex h-8 w-8 items-center justify-center rounded-full bg-emerald-100">
@@ -320,15 +334,15 @@ export default function DashboardPage() {
                       <Briefcase className="h-4 w-4 text-indigo-600" />
                     </span>
                     <span className="mt-2 text-xl font-bold text-indigo-700">{activeRate}%</span>
-                    <span className="text-[11px] font-medium text-indigo-600">Aktif</span>
+                    <span className="text-[11px] font-medium text-indigo-600">Active</span>
                   </div>
                 </div>
 
                 <div className="mt-6">
-                  <h3 className="text-sm font-semibold text-slate-700">Lamaran Terbaru</h3>
+                  <h3 className="text-sm font-semibold text-slate-700">Recent Applications</h3>
                   <div className="mt-3 space-y-2">
                     {recentJobs.length === 0 ? (
-                      <p className="text-sm text-slate-400">Belum ada lamaran.</p>
+                      <p className="text-sm text-slate-400">No applications yet.</p>
                     ) : (
                       recentJobs.map(job => (
                         <a

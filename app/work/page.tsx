@@ -1,14 +1,16 @@
 'use client'
 
-import { useEffect, useMemo, useState } from 'react'
+import { useCallback, useEffect, useMemo, useState } from 'react'
 import { Plus, Search, Filter, Eye, Pencil, Trash2, CalendarDays, Building2, Loader2 } from 'lucide-react'
 import Sidebar from '@/components/Sidebar'
 import Modal from '@/components/Modal'
-import JobForm from '@/components/JobForm'
 import StatusBadge from '@/components/StatusBadge'
 import EmptyState from '@/components/EmptyState'
 import PageHeader from '@/components/PageHeader'
+import ToastContainer, { type ToastItem } from '@/components/Toast'
+import ConfirmDialog from '@/components/ConfirmDialog'
 import { STATUS_ORDER, type JobStatus } from '@/lib/status'
+import JobForm, { type JobFormData } from '@/components/JobForm'
 
 interface Job {
   id: string
@@ -17,6 +19,7 @@ interface Job {
   apply_date: string
   status: JobStatus
   description: string
+  reject_note?: string | null
   created_at: string
   updated_at: string
 }
@@ -44,29 +47,48 @@ export default function WorkPage() {
   const [modalMode, setModalMode] = useState<'add' | 'view' | 'edit'>('add')
   const [selectedJob, setSelectedJob] = useState<Job | null>(null)
   const [deletingId, setDeletingId] = useState<string | null>(null)
+  const [toasts, setToasts] = useState<ToastItem[]>([])
+  const [reloadKey, setReloadKey] = useState(0)
+  const [confirmId, setConfirmId] = useState<string | null>(null)
 
   const [search, setSearch] = useState('')
   const [filterStatus, setFilterStatus] = useState<'all' | JobStatus>('all')
 
-  useEffect(() => {
-    fetchJobs()
+  // Helper untuk menambahkan toast notifikasi
+  const addToast = useCallback((type: ToastItem['type'], message: string) => {
+    const id = `toast-${Date.now()}-${Math.random()}`
+    setToasts(prev => [...prev, { id, type, message }])
   }, [])
 
-  const fetchJobs = async () => {
-    try {
-      setError(null)
-      const res = await fetch('/api/jobs')
-      if (!res.ok) throw new Error(`Failed to fetch jobs: ${res.status}`)
-      const data = await res.json()
-      setJobs(data)
-    } catch (error) {
-      const errorMsg = error instanceof Error ? error.message : 'Failed to fetch jobs'
-      console.error('Failed to fetch jobs:', error)
-      setError(errorMsg)
-    } finally {
-      setLoading(false)
+  const removeToast = useCallback((id: string) => {
+    setToasts(prev => prev.filter(t => t.id !== id))
+  }, [])
+  useEffect(() => {
+    let cancelled = false
+
+    async function load() {
+      try {
+        const res = await fetch('/api/jobs')
+        if (!res.ok) throw new Error(`Failed to fetch jobs: ${res.status}`)
+        const data = await res.json()
+        if (cancelled) return
+        setJobs(data)
+      } catch (error) {
+        if (cancelled) return
+        const errorMsg = error instanceof Error ? error.message : 'Failed to fetch jobs'
+        console.error('Failed to fetch jobs:', error)
+        setError(errorMsg)
+      } finally {
+        if (!cancelled) setLoading(false)
+      }
     }
-  }
+
+    load()
+
+    return () => {
+      cancelled = true
+    }
+  }, [reloadKey])
 
   const filteredJobs = useMemo(() => {
     const q = search.trim().toLowerCase()
@@ -98,9 +120,15 @@ export default function WorkPage() {
     setModalOpen(true)
   }
 
-  const handleDeleteJob = async (id: string) => {
-    if (!confirm('Are you sure you want to delete this job?')) return
+  const handleDeleteJob = (id: string) => {
+    setConfirmId(id)
+  }
+
+  const confirmDelete = async () => {
+    if (!confirmId) return
+    const id = confirmId
     setDeletingId(id)
+    setConfirmId(null)
     try {
       const res = await fetch(`/api/jobs/${id}`, { method: 'DELETE' })
       if (!res.ok) {
@@ -108,20 +136,21 @@ export default function WorkPage() {
         throw new Error(errData.error || 'Failed to delete job')
       }
       setJobs(jobs.filter(job => job.id !== id))
+      addToast('success', 'Application deleted successfully.')
     } catch (error) {
       const errorMsg = error instanceof Error ? error.message : 'Failed to delete job'
       console.error('Failed to delete job:', error)
-      alert(errorMsg)
+      addToast('error', errorMsg)
     } finally {
       setDeletingId(null)
     }
   }
 
-  const handleFormSubmit = async (formData: any) => {
+  const handleFormSubmit = async (formData: JobFormData) => {
     try {
-      const dateStr = formData.apply_date
+      const dateStr = formData.apply_date as string
       const [year, month, day] = dateStr.split('-')
-      const isoDate = new Date(year, parseInt(month) - 1, day).toISOString()
+      const isoDate = new Date(Date.UTC(Number(year), parseInt(month) - 1, Number(day))).toISOString()
       const payload = { ...formData, apply_date: isoDate }
 
       if (modalMode === 'add') {
@@ -137,6 +166,7 @@ export default function WorkPage() {
         const newJob = await res.json()
         setJobs([newJob, ...jobs])
         setModalOpen(false)
+        addToast('success', 'Job application added successfully!')
       } else if (modalMode === 'edit' && selectedJob) {
         const res = await fetch(`/api/jobs/${selectedJob.id}`, {
           method: 'PUT',
@@ -150,10 +180,12 @@ export default function WorkPage() {
         const updatedJob = await res.json()
         setJobs(jobs.map(job => (job.id === selectedJob.id ? updatedJob : job)))
         setModalOpen(false)
+        addToast('success', 'Job application updated successfully!')
       }
     } catch (error) {
       const errorMsg = error instanceof Error ? error.message : 'Failed to save job'
       console.error('Failed to save job:', error)
+      addToast('error', errorMsg)
       throw new Error(errorMsg)
     }
   }
@@ -164,30 +196,41 @@ export default function WorkPage() {
   }
 
   const formatDate = (dateStr: string) => {
-    return new Date(dateStr).toLocaleDateString('id-ID', { day: 'numeric', month: 'short', year: 'numeric' })
+    return new Date(dateStr).toLocaleDateString('en-US', { day: 'numeric', month: 'short', year: 'numeric' })
   }
 
   const modalTitle =
     modalMode === 'add'
       ? 'Add Job Application'
       : modalMode === 'view'
-      ? 'Job Details'
-      : 'Edit Job Application'
+        ? 'Job Details'
+        : 'Edit Job Application'
 
   const modalSubtitle =
     modalMode === 'add'
-      ? 'Catat lowongan pekerjaan yang baru kamu lamar'
+      ? 'Track a new job you just applied to'
       : selectedJob
-      ? `${selectedJob.company_name} — ${selectedJob.position}`
-      : undefined
+        ? `${selectedJob.company_name} — ${selectedJob.position}`
+        : undefined
 
   return (
     <div className="min-h-screen">
+      <ToastContainer toasts={toasts} onRemove={removeToast} />
+      <ConfirmDialog
+        isOpen={confirmId !== null}
+        title="Delete Application"
+        description="This action cannot be undone. The job application will be permanently removed."
+        confirmLabel="Yes, Delete"
+        cancelLabel="Cancel"
+        isLoading={deletingId !== null}
+        onConfirm={confirmDelete}
+        onCancel={() => setConfirmId(null)}
+      />
       <Sidebar />
       <main className="ml-64 min-h-screen p-6 lg:p-8">
         <PageHeader
           title="Work"
-          subtitle="Kelola seluruh lamaran pekerjaanmu dalam satu tempat"
+          subtitle="Manage all your job applications in one place"
           action={
             <button
               onClick={handleAddJob}
@@ -206,7 +249,7 @@ export default function WorkPage() {
               type="text"
               value={search}
               onChange={e => setSearch(e.target.value)}
-              placeholder="Cari perusahaan atau posisi..."
+              placeholder="Search company or position..."
               className="w-full rounded-xl border border-slate-200 bg-white py-2.5 pl-10 pr-4 text-sm text-slate-900 shadow-sm outline-none transition focus:border-indigo-500 focus:ring-2 focus:ring-indigo-100"
             />
           </div>
@@ -217,7 +260,7 @@ export default function WorkPage() {
               onChange={e => setFilterStatus(e.target.value as 'all' | JobStatus)}
               className="rounded-xl border border-slate-200 bg-white px-3 py-2.5 text-sm font-medium text-slate-700 shadow-sm outline-none transition focus:border-indigo-500 focus:ring-2 focus:ring-indigo-100"
             >
-              <option value="all">Semua Status</option>
+              <option value="all">All Status</option>
               {STATUS_ORDER.map(s => (
                 <option key={s} value={s}>
                   {s.replace(/_/g, ' ')}
@@ -230,14 +273,18 @@ export default function WorkPage() {
         {loading ? (
           <div className="flex items-center justify-center py-24 text-slate-400">
             <Loader2 className="h-6 w-6 animate-spin" />
-            <span className="ml-2 text-sm font-medium">Memuat data...</span>
+            <span className="ml-2 text-sm font-medium">Loading data...</span>
           </div>
         ) : error ? (
           <div className="rounded-2xl border border-rose-200 bg-rose-50 p-6 text-rose-700">
             <p className="font-semibold">Error loading jobs</p>
             <p className="mt-1 text-sm">{error}</p>
             <button
-              onClick={() => fetchJobs()}
+              onClick={() => {
+                setError(null)
+                setLoading(true)
+                setReloadKey(k => k + 1)
+              }}
               className="mt-3 rounded-xl bg-rose-600 px-4 py-2 text-sm font-semibold text-white transition hover:bg-rose-700"
             >
               Try again
@@ -245,14 +292,14 @@ export default function WorkPage() {
           </div>
         ) : jobs.length === 0 ? (
           <EmptyState
-            message="Belum ada lowongan yang kamu lamar. Mulai catat lamaran kerjamu sekarang."
-            actionLabel="Tambah Lamaran"
+            message="You haven't applied to any jobs yet. Start tracking your applications now."
+            actionLabel="Add Application"
             onAction={handleAddJob}
           />
         ) : filteredJobs.length === 0 ? (
           <div className="flex flex-col items-center py-20 text-center">
             <Search className="h-10 w-10 text-slate-300" />
-            <p className="mt-4 text-sm font-medium text-slate-500">Tidak ada hasil yang cocok</p>
+            <p className="mt-4 text-sm font-medium text-slate-500">No results found</p>
             <button onClick={() => { setSearch(''); setFilterStatus('all') }} className="mt-3 text-sm font-semibold text-indigo-600 hover:underline">
               Reset filter
             </button>
@@ -337,9 +384,9 @@ export default function WorkPage() {
               initialData={
                 selectedJob
                   ? {
-                      ...selectedJob,
-                      apply_date: selectedJob.apply_date.split('T')[0],
-                    }
+                    ...selectedJob,
+                    apply_date: selectedJob.apply_date.split('T')[0],
+                  }
                   : undefined
               }
               onSubmit={handleFormSubmit}

@@ -4,6 +4,15 @@ import { useState } from 'react'
 import { Building2, Briefcase, CalendarDays, AlignLeft, Check, Loader2 } from 'lucide-react'
 import { STATUS_ORDER, type JobStatus } from '@/lib/status'
 
+export interface JobFormData {
+  company_name: string
+  position: string
+  apply_date: string
+  status: JobStatus
+  description: string
+  reject_note?: string
+}
+
 interface JobFormProps {
   initialData?: {
     id?: string
@@ -12,8 +21,9 @@ interface JobFormProps {
     apply_date: string
     status: JobStatus
     description: string
+    reject_note?: string | null
   }
-  onSubmit: (data: any) => Promise<void>
+  onSubmit: (data: JobFormData) => Promise<void>
   onCancel: () => void
   isDisabled?: boolean
 }
@@ -24,12 +34,13 @@ const inputClass = (disabled: boolean) =>
   }`
 
 export default function JobForm({ initialData, onSubmit, onCancel, isDisabled = false }: JobFormProps) {
-  const [formData, setFormData] = useState({
+  const [formData, setFormData] = useState<JobFormData>({
     company_name: initialData?.company_name || '',
     position: initialData?.position || '',
     apply_date: initialData?.apply_date || '',
     status: (initialData?.status || 'Apply') as JobStatus,
     description: initialData?.description || '',
+    reject_note: initialData?.reject_note || '',
   })
   const [loading, setLoading] = useState(false)
   const [error, setError] = useState('')
@@ -46,8 +57,9 @@ export default function JobForm({ initialData, onSubmit, onCancel, isDisabled = 
 
     try {
       await onSubmit(formData)
-    } catch (err: any) {
-      setError(err.message || 'Failed to save job')
+    } catch (err: unknown) {
+      const message = err instanceof Error ? err.message : 'Failed to save job'
+      setError(message)
     } finally {
       setLoading(false)
     }
@@ -134,10 +146,31 @@ export default function JobForm({ initialData, onSubmit, onCancel, isDisabled = 
             disabled={isDisabled}
             required
             rows={7}
-            placeholder="Deskripsi pekerjaan, requirements, notes, dll..."
+            placeholder="Job description, requirements, notes, etc..."
             className={`${inputClass(isDisabled)} resize-y`}
           />
         </div>
+
+        {/* Field reject_note — only visible when status is Reject */}
+        {formData.status === 'Reject' && (
+          <div className="sm:col-span-2">
+            <label className="flex items-center gap-1.5 text-sm font-semibold text-slate-700">
+              <AlignLeft className="h-4 w-4 text-rose-500" />
+              <span className="text-rose-600">Reject Note</span>
+              <span className="ml-1 rounded-full bg-rose-100 px-1.5 py-0.5 text-[10px] font-semibold text-rose-500">Optional</span>
+            </label>
+            <p className="mb-1.5 text-xs text-slate-400">Note the reason for rejection so you can use it as a reference.</p>
+            <textarea
+              name="reject_note"
+              value={formData.reject_note}
+              onChange={handleChange}
+              disabled={isDisabled}
+              rows={4}
+              placeholder="e.g. Did not pass technical test, salary mismatch, etc..."
+              className={`${inputClass(isDisabled)} resize-y border-rose-200 focus:border-rose-400 focus:ring-rose-100`}
+            />
+          </div>
+        )}
       </div>
 
       {error && (

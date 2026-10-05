@@ -8,7 +8,8 @@ export async function getAllJobs() {
     })
     return jobs
   } catch (error) {
-    throw new Error('Failed to fetch jobs')
+    // throw new Error('Failed to fetch jobs')
+    throw error
   }
 }
 
@@ -37,11 +38,13 @@ export async function createJob(data: CreateJobInput) {
         apply_date: new Date(data.apply_date),
         status: data.status,
         description: data.description.trim(),
+        // Hanya simpan reject_note jika statusnya Reject, selain itu null
+        reject_note: data.status === 'Reject' ? (data.reject_note?.trim() || null) : null,
       },
     })
 
     return job
-  } catch (error) {
+  } catch {
     throw new Error('Failed to create job')
   }
 }
@@ -56,11 +59,13 @@ export async function updateJob(id: string, data: UpdateJobInput) {
         apply_date: new Date(data.apply_date),
         status: data.status,
         description: data.description.trim(),
+        // Hanya simpan reject_note jika statusnya Reject, selain itu null
+        reject_note: data.status === 'Reject' ? (data.reject_note?.trim() || null) : null,
       },
     })
 
     return job
-  } catch (error) {
+  } catch {
     throw new Error('Failed to update job')
   }
 }
@@ -72,7 +77,7 @@ export async function deleteJob(id: string) {
     })
 
     return { success: true }
-  } catch (error) {
+  } catch {
     throw new Error('Failed to delete job')
   }
 }
@@ -83,16 +88,16 @@ export async function getJobStats() {
 
     const stats = {
       total: jobs.length,
-      apply: jobs.filter((j: any) => j.status === 'Apply').length,
-      hr_interview: jobs.filter((j: any) => j.status === 'HR_Interview').length,
-      test: jobs.filter((j: any) => j.status === 'Test').length,
-      user_interview: jobs.filter((j: any) => j.status === 'User_Interview').length,
-      offering: jobs.filter((j: any) => j.status === 'Offering').length,
-      rejected: jobs.filter((j: any) => j.status === 'Reject').length,
+      apply: jobs.filter(j => j.status === 'Apply').length,
+      hr_interview: jobs.filter(j => j.status === 'HR_Interview').length,
+      test: jobs.filter(j => j.status === 'Test').length,
+      user_interview: jobs.filter(j => j.status === 'User_Interview').length,
+      offering: jobs.filter(j => j.status === 'Offering').length,
+      rejected: jobs.filter(j => j.status === 'Reject').length,
     }
 
     return stats
-  } catch (error) {
+  } catch {
     throw new Error('Failed to fetch job stats')
   }
 }

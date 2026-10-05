@@ -1,8 +1,9 @@
 import { NextRequest, NextResponse } from 'next/server'
+import { ZodError } from 'zod'
 import { getAllJobs, createJob } from '@/app/service/job.service'
 import { createJobSchema } from '@/lib/schemas'
 
-export async function GET(req: NextRequest) {
+export async function GET() {
   try {
     const jobs = await getAllJobs()
     return NextResponse.json(jobs)
@@ -23,17 +24,18 @@ export async function POST(req: NextRequest) {
     const job = await createJob(validated)
 
     return NextResponse.json(job, { status: 201 })
-  } catch (error: any) {
+  } catch (error) {
     console.error('POST /api/jobs error:', error)
-    if (error.name === 'ZodError') {
+    console.error('POST /api/jobs error:', error)
+
+    if (error instanceof ZodError) {
       return NextResponse.json(
-        { error: 'Validation failed', details: error.errors },
+        { error: 'Validation failed', details: error.issues },
         { status: 400 }
       )
     }
-    return NextResponse.json(
-      { error: error.message || 'Failed to create job' },
-      { status: 500 }
-    )
+
+    const message = error instanceof Error ? error.message : 'Failed to create job'
+    return NextResponse.json({ error: message }, { status: 500 })
   }
 }

@@ -17,6 +17,7 @@ model job {
   apply_date   DateTime
   status       status
   description  String   @db.LongText
+  reject_note  String?  @db.Text
   created_at   DateTime @default(now())
   updated_at   DateTime @updatedAt
 

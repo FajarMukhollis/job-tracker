@@ -6,6 +6,7 @@ export const createJobSchema = z.object({
   apply_date: z.string().datetime('Invalid date format'),
   status: z.enum(['Apply', 'HR_Interview', 'Test', 'User_Interview', 'Offering', 'Reject']),
   description: z.string().min(1, 'Description is required'),
+  reject_note: z.string().optional(),
 })
 
 export const updateJobSchema = createJobSchema
